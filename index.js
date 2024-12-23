@@ -44,10 +44,11 @@ const userRoutes = require('./src/users/user.route');
 
 const formRoutes = require("./src/form/form.route"); 
 
+const reviewRoutes = require("./src/review/review.route"); 
 
 app.use('/api/users', userRoutes);
 
-
+app.use('/api/reviews', reviewRoutes);
 app.use('/api/products', productRoutes);
 app.use("/api/forms", formRoutes);
 
