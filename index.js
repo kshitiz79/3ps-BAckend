@@ -11,10 +11,19 @@ const port = process.env.PORT || 4000;
 app.use(express.json({ limit: "55mb" }));
 app.use(express.urlencoded({ limit: "55mb", extended: true })); // Use 'extended: true' here
 app.use(cookieParser());
+const allowedOrigins = ['https://sandbox.rbshstudio.com']; // Add your frontend origin here
+
 app.use(cors({
-  origin: '*', // Allow all origins
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
+
 
 
 const uploadImage = require("./utils/uploadimage");
