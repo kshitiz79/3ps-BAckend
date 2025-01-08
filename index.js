@@ -24,7 +24,6 @@ app.use(cors({
   credentials: true,
 }));
 
-
 const uploadImage = require("./utils/uploadimage");
 
 

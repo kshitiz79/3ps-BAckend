@@ -14,7 +14,7 @@ router.post('/login', userController.loginUser);
 router.post('/logout', userController.logoutUser);
 
 // Get All Users
-router.get('/', verifyToken, userController.getAllUsers);
+router.get('/',  userController.getAllUsers);
 
 // Delete User
 router.delete('/users/:id', verifyToken, userController.deleteUser);

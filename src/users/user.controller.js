@@ -1,71 +1,70 @@
 const User = require('./user.model');
 const bcrypt = require('bcryptjs');
-const { generateToken, verifyToken } = require('./../middleware/tokenutils');
+const { generateAccessToken, generateRefreshToken } = require('./../middleware/tokenutils');
 const jwt = require('jsonwebtoken');
 
 
 // User Registration
 // User Registration// Register User
 // Example for Login Endpoint
+exports.registerUser = async (req, res) => {
+  try {
+    const { username, email, password, role } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+
+    const user = new User({ username, email, password, role });
+    await user.save();
+
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    res.status(201).json({
+      message: 'Registration successful',
+      accessToken,
+      refreshToken,
+      user: user.toObject(),
+    });
+  } catch (error) {
+    console.error('Registration error:', error.message);
+    res.status(500).json({ message: 'Registration failed', error: error.message });
+  }
+};
+
+/**
+ * Login user.
+ */
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = generateToken(user._id);
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
 
     res.status(200).json({
-      message: "Login successful",
-      token,
-      user: {
-        id: user._id,
-        email: user.email,
-        username: user.username,
-        role: user.role, // Ensure role is included
-      },
+      message: 'Login successful',
+      accessToken,
+      refreshToken,
+      user: user.toObject(),
     });
   } catch (error) {
-    console.error("Login error:", error.message);
-    res.status(500).json({ message: "Login failed", error: error.message });
+    console.error('Login error:', error.message);
+    res.status(500).json({ message: 'Login failed', error: error.message });
   }
 };
-
-// Example for Register Endpoint
-exports.registerUser = async (req, res) => {
-  try {
-    const { username, email, password, role } = req.body;
-
-    const user = new User({ username, email, password, role }); // Save role
-    await user.save();
-
-    const token = generateToken(user._id);
-
-    res.status(201).json({
-      message: "Registration successful",
-      token,
-      user: {
-        id: user._id,
-        email: user.email,
-        username: user.username,
-        role: user.role, // Ensure role is included
-      },
-    });
-  } catch (error) {
-    console.error("Registration error:", error.message);
-    res.status(500).json({ message: "Registration failed", error: error.message });
-  }
-};
-
-  
   
 
 // User Logout
@@ -91,6 +90,7 @@ exports.getAllUsers = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch users' });
   }
 };
+
 
 // Delete User
 exports.deleteUser = async (req, res) => {

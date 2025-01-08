@@ -21,6 +21,7 @@ exports.createProduct = async (req, res) => {
       mainContent,
     });
 
+    // This will run the pre-save hook automatically
     const savedProduct = await product.save();
 
     res.status(201).json({
@@ -37,6 +38,7 @@ exports.createProduct = async (req, res) => {
     });
   }
 };
+
 
 // READ: Get all products
 exports.getAllProducts = async (req, res) => {
@@ -85,18 +87,22 @@ exports.getProductById = async (req, res) => {
 // UPDATE: Update a product
 exports.updateProduct = async (req, res) => {
   try {
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+    // 1) Find the existing product
+    const product = await Product.findById(req.params.id);
 
-    if (!updatedProduct) {
+    if (!product) {
       return res.status(404).json({
         success: false,
         message: "Product not found.",
       });
     }
+
+    // 2) Update product fields from req.body
+    //    This way, when we call .save(), it will trigger the pre-save hook
+    product.set(req.body);
+
+    // 3) Save product so pre-save hook runs and recalculates pricing fields
+    const updatedProduct = await product.save();
 
     res.status(200).json({
       success: true,
