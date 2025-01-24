@@ -98,9 +98,42 @@ const productSchema = new mongoose.Schema(
         text2: { type: String }
       }
     }
+documentRequirements: [
+      {
+        title: { type: String },
+        count: { type: Number, default: 0 },
+        descriptions: [
+          {
+            title: { type: String},
+            desc: { type: String },
+          },
+        ],
+      },
+    ],
+
+
+
+
+    
   },
   { timestamps: true }
 );
+
+
+productSchema.pre("save", function (next) {
+  if (this.documentRequirements && this.documentRequirements.length > 0) {
+    this.documentRequirements.forEach((requirement) => {
+      requirement.count = requirement.descriptions.length; // Calculate count dynamically
+    });
+  }
+  next();
+});
+
+
+
+
+
+
 
 // Helper function to calculate final price for a single pricing plan
 function calculatePrice(plan) {
