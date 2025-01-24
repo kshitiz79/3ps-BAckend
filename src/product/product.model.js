@@ -96,8 +96,8 @@ const productSchema = new mongoose.Schema(
         text1: { type: String },
         title2: { type: String },
         text2: { type: String }
-      }
-    }
+      },
+    },
 documentRequirements: [
       {
         title: { type: String },
