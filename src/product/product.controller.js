@@ -13,7 +13,7 @@ exports.createProduct = async (req, res) => {
       });
     }
 
-    // Create a new product
+    // Create a new produc
     const product = new Product({
       title,
       image: image || "",
